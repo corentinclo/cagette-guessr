@@ -97,6 +97,19 @@ function send(connection: DataConnection, message: ServerMessage): void {
   if (connection.open) connection.send(message);
 }
 
+function getJoinErrorMessage(errorType: string): string {
+  if (errorType === "peer-unavailable") {
+    return "Cette salle est introuvable ou son hôte est hors ligne.";
+  }
+  if (errorType === "network" || errorType === "server-error") {
+    return "Le service de connexion aux salles est momentanément inaccessible.";
+  }
+  if (errorType === "browser-incompatible") {
+    return "Ce navigateur ne prend pas en charge le mode multijoueur.";
+  }
+  return `Impossible de joindre cette salle (${errorType}).`;
+}
+
 export function usePrivateRoom(): UsePrivateRoomResult {
   const [state, setState] = useState<PrivateRoomState>({
     connectionState: "idle",
@@ -553,19 +566,19 @@ export function usePrivateRoom(): UsePrivateRoomResult {
             error: "La connexion avec l’hôte est fermée.",
           }));
         });
-        connection.on("error", () => {
+        connection.on("error", (error) => {
           setState((current) => ({
             ...current,
             connectionState: "error",
-            error: "Impossible de rejoindre cette salle.",
+            error: getJoinErrorMessage(error.type),
           }));
         });
       });
-      peer.on("error", () => {
+      peer.on("error", (error) => {
         setState((current) => ({
           ...current,
           connectionState: "error",
-          error: "Impossible de joindre cette salle.",
+          error: getJoinErrorMessage(error.type),
         }));
       });
     },
