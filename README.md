@@ -68,4 +68,4 @@ Le dossier `out/` obtenu peut être servi par n’importe quel hébergement stat
 
 ## Licence et provenance
 
-Le dépôt est distribué sous la licence PolyForm Noncommercial 1.0.0. La mention historique conservée dans [LICENSE.md](LICENSE.md) est une attribution imposée par cette licence ; elle ne décrit pas l’identité du produit actuel.
+Ce dépôt est distribué sous la licence MIT. Consultez le fichier [LICENSE](LICENSE) pour en lire les conditions.
