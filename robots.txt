@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://corentinclo.github.io/cagette-geo-guessr/sitemap.xml
