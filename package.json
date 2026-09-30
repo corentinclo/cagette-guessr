@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Jeu de géographie consacré aux marchés Cagette",
   "private": true,
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "convert-csv": "tsx scripts/convertCagetteCsvToJson.ts",

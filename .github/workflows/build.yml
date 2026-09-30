@@ -5,14 +5,14 @@ permissions:
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_BASE_PATH: /cagette-geo-guessr
+      NEXT_PUBLIC_BASE_PATH: /cagette-guessr
     steps:
       - uses: actions/checkout@v4
 

@@ -64,7 +64,7 @@ pnpm convert-csv
 pnpm build
 ```
 
-Le dossier `out/` obtenu peut être servi par n’importe quel hébergement statique. Le workflow principal publie sur `https://corentinclo.github.io/cagette-geo-guessr/` et définit donc `NEXT_PUBLIC_BASE_PATH=/cagette-geo-guessr`.
+Le dossier `out/` obtenu peut être servi par n’importe quel hébergement statique. Le workflow principal publie sur `https://corentinclo.github.io/cagette-guessr/` et définit donc `NEXT_PUBLIC_BASE_PATH=/cagette-guessr`.
 
 ## Licence et provenance
 
