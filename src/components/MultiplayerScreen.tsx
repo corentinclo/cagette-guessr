@@ -9,6 +9,8 @@ interface MultiplayerScreenProps {
   onQuit: () => void;
 }
 
+const PLAYER_NAME_STORAGE_KEY = "cagette-guessr-player-name";
+
 function connectionLabel(state: string): string {
   if (state === "connecting") return "Connexion en cours…";
   if (state === "connected") return "Connecté";
@@ -18,6 +20,7 @@ function connectionLabel(state: string): string {
 
 export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
   const [playerName, setPlayerName] = useState("");
+  const [playerNameLoaded, setPlayerNameLoaded] = useState(false);
   const [roomCodeInput, setRoomCodeInput] = useState("");
   const [copied, setCopied] = useState(false);
   const autoJoinStarted = useRef(false);
@@ -37,6 +40,18 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
   } = usePrivateRoom();
 
   useEffect(() => {
+    setPlayerName(localStorage.getItem(PLAYER_NAME_STORAGE_KEY) ?? "");
+    setPlayerNameLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (playerNameLoaded) {
+      localStorage.setItem(PLAYER_NAME_STORAGE_KEY, playerName);
+    }
+  }, [playerName, playerNameLoaded]);
+
+  useEffect(() => {
+    if (!playerNameLoaded) return;
     const code = new URLSearchParams(window.location.search)
       .get("room")
       ?.trim();
@@ -46,7 +61,7 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
     if (autoJoinStarted.current) return;
     autoJoinStarted.current = true;
     void joinRoom(code, playerName);
-  }, [joinRoom, playerName]);
+  }, [joinRoom, playerName, playerNameLoaded]);
 
   function handleCreate(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
