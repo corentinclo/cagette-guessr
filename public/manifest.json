@@ -1,0 +1,20 @@
+{
+  "background_color": "#f4efe4",
+  "description": "Retrouvez les marchés Cagette sur la carte de France.",
+  "dir": "ltr",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "name": "CagetteGuessr",
+  "scope": ".",
+  "short_name": "CagetteGuessr",
+  "start_url": ".",
+  "theme_color": "#2f6b4f",
+  "id": "."
+}
