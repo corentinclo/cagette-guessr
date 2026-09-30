@@ -853,6 +853,21 @@ a:focus-visible {
   background: var(--green);
 }
 
+.map-pin--player span {
+  background: var(--pin-color);
+}
+
+.leaflet-tooltip.map-pin__label {
+  background: rgba(23, 34, 30, 0.92);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 6px;
+}
+
 .guess-panel__validate {
   margin-top: 14px;
   width: 100%;
@@ -907,6 +922,79 @@ a:focus-visible {
   font-size: 0.72rem;
   line-height: 1.35;
   margin: 0;
+}
+
+.multiplayer-final-dialog {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  margin: auto;
+  max-height: calc(100vh - 32px);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  width: 100%;
+}
+
+.multiplayer-final-dialog::backdrop {
+  backdrop-filter: blur(3px);
+  background: rgba(14, 24, 20, 0.72);
+}
+
+.multiplayer-final-dialog__content {
+  padding: clamp(22px, 5vw, 36px);
+}
+
+.multiplayer-final-dialog__content > .eyebrow {
+  margin: 0 0 8px;
+}
+
+.multiplayer-final-dialog__content h2 {
+  font-family: var(--font-sanchez), Georgia, serif;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  font-weight: 500;
+  margin: 0 0 22px;
+}
+
+.multiplayer-final-standings {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+}
+
+.multiplayer-final-standings li {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
+  padding: 12px 0;
+}
+
+.multiplayer-final-standings__rank {
+  align-items: center;
+  background: var(--green-light);
+  border-radius: 50%;
+  display: inline-flex;
+  font-weight: 700;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.multiplayer-final-standings__you {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.multiplayer-final-standings li b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.multiplayer-final-dialog__content > .button {
+  width: 100%;
 }
 
 .summary {

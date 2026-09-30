@@ -152,14 +152,13 @@ export function usePrivateRoom(): UsePrivateRoomResult {
   }, []);
 
   const broadcastRoom = useCallback((room: Room): void => {
-    const message: GameMessage = {
-      type: "game",
-      version: 1,
-      room,
-      myId: room.hostId,
-    };
-
-    for (const connection of connectionsRef.current.values()) {
+    for (const [playerId, connection] of connectionsRef.current) {
+      const message: GameMessage = {
+        type: "game",
+        version: 1,
+        room,
+        myId: playerId,
+      };
       send(connection, message);
     }
   }, []);
