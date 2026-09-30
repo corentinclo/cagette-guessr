@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GameScreen from "@/components/GameScreen";
 import HomeScreen from "@/components/HomeScreen";
 import MultiplayerScreen from "@/components/MultiplayerScreen";
@@ -32,6 +32,12 @@ export default function CagetteGuessrApp() {
   const [guess, setGuess] = useState<Coordinates | null>(null);
   const [result, setResult] = useState<RoundResult | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("room")) {
+      setScreen("multiplayer");
+    }
+  }, []);
 
   const market = rounds[roundIndex];
   const totalPoints = useMemo(

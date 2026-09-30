@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import MultiplayerRoundView from "@/components/MultiplayerRoundView";
 import { markets } from "@/data/markets";
 import { usePrivateRoom } from "@/multiplayer/usePrivateRoom";
@@ -20,6 +20,7 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
   const [playerName, setPlayerName] = useState("");
   const [roomCodeInput, setRoomCodeInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const autoJoinStarted = useRef(false);
   const {
     connectionState,
     createRoom,
@@ -36,9 +37,16 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
   } = usePrivateRoom();
 
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get("room");
-    if (code) setRoomCodeInput(code);
-  }, []);
+    const code = new URLSearchParams(window.location.search)
+      .get("room")
+      ?.trim();
+    if (!code) return;
+
+    setRoomCodeInput(code);
+    if (autoJoinStarted.current) return;
+    autoJoinStarted.current = true;
+    void joinRoom(code, playerName);
+  }, [joinRoom, playerName]);
 
   function handleCreate(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
