@@ -710,6 +710,24 @@ a:focus-visible {
   z-index: 450;
 }
 
+.multiplayer-round__dock {
+  align-items: flex-start;
+  left: 16px;
+  right: auto;
+}
+
+.multiplayer-round__dock .guess-panel__heading {
+  background: rgba(23, 34, 30, 0.78);
+  border-radius: 12px;
+  color: var(--paper-strong);
+  display: block;
+  padding: 8px 12px;
+}
+
+.multiplayer-round__dock .guess-panel__heading > span {
+  color: rgba(255, 253, 247, 0.78);
+}
+
 .guess-dock .guess-map-overlay {
   bottom: auto;
   position: static;
@@ -1028,6 +1046,17 @@ a:focus-visible {
   }
 
   .guess-dock__heading span {
+    color: var(--ink-soft);
+  }
+
+  .multiplayer-round__dock .guess-panel__heading {
+    background: transparent;
+    border-radius: 0;
+    color: var(--ink);
+    padding: 2px 2px 14px;
+  }
+
+  .multiplayer-round__dock .guess-panel__heading > span {
     color: var(--ink-soft);
   }
 

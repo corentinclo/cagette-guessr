@@ -72,16 +72,7 @@ export default function MultiplayerRoundView({
       <div className="game__workspace">
         <StreetViewFrame market={market} />
 
-        <div className="guess-map-overlay">
-          <GuessMap
-            guess={guess}
-            answer={isRevealed ? market : null}
-            onGuess={handleGuess}
-            disabled={!isGuessing || isRevealed || locked}
-          />
-        </div>
-
-        <aside className="guess-panel" aria-label="Carte de réponse">
+        <aside className="guess-dock multiplayer-round__dock" aria-label="Carte de réponse">
           <div className="guess-panel__heading">
             <div>
               <p className="eyebrow">
@@ -96,6 +87,15 @@ export default function MultiplayerRoundView({
               </h1>
             </div>
             {isGuessing && <span>Placez votre repère</span>}
+          </div>
+
+          <div className="guess-map-overlay">
+            <GuessMap
+              guess={guess}
+              answer={isRevealed ? market : null}
+              onGuess={handleGuess}
+              disabled={!isGuessing || isRevealed || locked}
+            />
           </div>
 
           {room.state === "getready" && (
