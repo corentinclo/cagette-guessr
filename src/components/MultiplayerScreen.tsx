@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import MultiplayerRoundView from "@/components/MultiplayerRoundView";
 import { markets } from "@/data/markets";
+import type { RoomState } from "@/domain/types";
 import { usePrivateRoom } from "@/multiplayer/usePrivateRoom";
 
 interface MultiplayerScreenProps {
@@ -16,6 +17,13 @@ function connectionLabel(state: string): string {
   if (state === "connected") return "Connecté";
   if (state === "error") return "Connexion interrompue";
   return "Prêt à créer ou rejoindre une salle";
+}
+
+function roomStateLabel(state: RoomState): string {
+  if (state === "getready") return "La manche va bientôt commencer";
+  if (state === "guess") return "Manche en cours";
+  if (state === "end") return "Manche terminée";
+  return "En attente du lancement";
 }
 
 export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
@@ -110,7 +118,7 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
           ← Retour
         </button>
         <p className="eyebrow">partie privée</p>
-        <h1>Jouez avec vos proches.</h1>
+        <h1>Jouez à plusieurs.</h1>
         <p className="multiplayer__lede">
           Une salle reste active tant que son hôte garde cette page ouverte.
         </p>
@@ -174,7 +182,7 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
               )}
             </div>
             <p className="multiplayer__status">
-              {connectionLabel(connectionState)} · étape « {room.state} »
+              {connectionLabel(connectionState)} · {roomStateLabel(room.state)}
             </p>
             <h2>Joueurs · {room.players.length}</h2>
             <ul className="multiplayer__players">
