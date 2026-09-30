@@ -1,5 +1,8 @@
 export const ROOM_CODE_LENGTH = 5;
 export const ROOM_PEER_PREFIX = "cagette-guessr-";
+export const MIN_ROUND_DURATION_SECONDS = 10;
+export const MAX_ROUND_DURATION_SECONDS = 300;
+export const DEFAULT_ROUND_DURATION_SECONDS = 60;
 
 const ROOM_CODE_PATTERN = /^[A-Z]{5}$/;
 

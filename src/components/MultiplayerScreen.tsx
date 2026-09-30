@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import MultiplayerRoundView from "@/components/MultiplayerRoundView";
 import { markets } from "@/data/markets";
+import { formatRoundDuration } from "@/domain/game";
+import {
+  MAX_ROUND_DURATION_SECONDS,
+  MIN_ROUND_DURATION_SECONDS,
+} from "@/domain/room";
 import type { RoomState } from "@/domain/types";
 import { usePrivateRoom } from "@/multiplayer/usePrivateRoom";
 
@@ -20,7 +25,6 @@ function connectionLabel(state: string): string {
 }
 
 function roomStateLabel(state: RoomState): string {
-  if (state === "getready") return "La manche va bientôt commencer";
   if (state === "guess") return "Manche en cours";
   if (state === "end") return "Manche terminée";
   return "En attente du lancement";
@@ -44,6 +48,7 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
     roomCode,
     nextRound,
     placeGuess,
+    setOptions,
     startGame,
   } = usePrivateRoom();
 
@@ -105,7 +110,9 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
         room={room}
         market={activeMarket}
         myId={myId ?? ""}
+        isHost={isHost}
         onGuess={placeGuess}
+        onNextRound={nextRound}
         onQuit={exitRoom}
       />
     );
@@ -194,6 +201,37 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
                 </li>
               ))}
             </ul>
+            {room.state === "waiting" && (
+              <div className="multiplayer__duration">
+                <div className="multiplayer__duration-heading">
+                  <span>Durée par manche</span>
+                  <strong>
+                    {formatRoundDuration(room.options.timePerRound)}
+                  </strong>
+                </div>
+                {isHost && (
+                  <input
+                    aria-label="Durée de chaque manche"
+                    type="range"
+                    min={MIN_ROUND_DURATION_SECONDS}
+                    max={MAX_ROUND_DURATION_SECONDS}
+                    step={1}
+                    value={room.options.timePerRound}
+                    onChange={(event) =>
+                      setOptions({
+                        ...room.options,
+                        timePerRound: Number(event.target.value),
+                      })
+                    }
+                  />
+                )}
+                <p>
+                  {isHost
+                    ? "Réglez le temps accordé pour chaque manche."
+                    : "Temps choisi par l’hôte pour chaque manche."}
+                </p>
+              </div>
+            )}
             {room.state === "end" && (
               <div className="multiplayer__results">
                 <h2>Résultats de la manche</h2>

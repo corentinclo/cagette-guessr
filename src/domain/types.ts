@@ -21,7 +21,7 @@ export interface RoundResult {
   points: number;
 }
 
-export type RoomState = "waiting" | "getready" | "guess" | "end";
+export type RoomState = "waiting" | "guess" | "end";
 export type PlayerStatus = "connected" | "disconnected";
 
 export interface Player {
@@ -56,6 +56,7 @@ export interface MultiplayerRound {
 
 export interface RoomOptions {
   rounds: number;
+  /** Maximum placement time for each round, in seconds. */
   timePerRound: number;
 }
 

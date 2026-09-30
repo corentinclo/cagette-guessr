@@ -1,9 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StreetViewFrame from "@/components/StreetViewFrame";
-import { formatDistance, formatPoints } from "@/domain/game";
+import {
+  formatDistance,
+  formatPoints,
+  formatRoundDuration,
+} from "@/domain/game";
 import type { Coordinates, Market, Room } from "@/domain/types";
 import type { GuessMapProps } from "@/components/GuessMap";
 
@@ -16,7 +20,9 @@ interface MultiplayerRoundViewProps {
   room: Room;
   market: Market;
   myId: string;
+  isHost: boolean;
   onGuess: (coordinates: Coordinates, final: boolean) => void;
+  onNextRound: () => void;
   onQuit: () => void;
 }
 
@@ -24,15 +30,36 @@ export default function MultiplayerRoundView({
   room,
   market,
   myId,
+  isHost,
   onGuess,
+  onNextRound,
   onQuit,
 }: MultiplayerRoundViewProps) {
   const [guess, setGuess] = useState<Coordinates | null>(null);
   const [locked, setLocked] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   const round = room.rounds[room.currentRound - 1];
   const result = round?.results.find((item) => item.playerId === myId);
   const isGuessing = room.state === "guess";
   const isRevealed = room.state === "end" && Boolean(round?.revealed);
+  const remainingSeconds =
+    isGuessing && room.nextEventAt !== null
+      ? Math.max(0, Math.ceil((room.nextEventAt - now) / 1000))
+      : null;
+
+  useEffect(() => {
+    if (!isGuessing || room.nextEventAt === null) return;
+
+    const updateNow = (): void => setNow(Date.now());
+    updateNow();
+    const interval = window.setInterval(updateNow, 1000);
+    return () => window.clearInterval(interval);
+  }, [isGuessing, room.nextEventAt]);
+
+  useEffect(() => {
+    setGuess(null);
+    setLocked(false);
+  }, [room.currentRound]);
 
   function handleGuess(coordinates: Coordinates): void {
     setGuess(coordinates);
@@ -57,6 +84,17 @@ export default function MultiplayerRoundView({
           <span>
             Manche {room.currentRound} / {room.options.rounds} · {room.code}
           </span>
+          {remainingSeconds !== null && (
+            <span
+              aria-label={`Temps restant : ${formatRoundDuration(remainingSeconds)}`}
+              className={`multiplayer-game__timer${
+                remainingSeconds <= 10 ? " multiplayer-game__timer--urgent" : ""
+              }`}
+              role="timer"
+            >
+              {formatRoundDuration(remainingSeconds)}
+            </span>
+          )}
         </div>
         <div className="game__score">
           <span>Votre score</span>
@@ -72,19 +110,14 @@ export default function MultiplayerRoundView({
       <div className="game__workspace">
         <StreetViewFrame market={market} />
 
-        <aside className="guess-dock multiplayer-round__dock" aria-label="Carte de réponse">
+        <aside
+          className="guess-dock multiplayer-round__dock"
+          aria-label="Carte de réponse"
+        >
           <div className="guess-panel__heading">
             <div>
-              <p className="eyebrow">
-                {room.state === "getready" ? "préparation" : "manche en cours"}
-              </p>
-              <h1>
-                {room.state === "getready"
-                  ? "Préparez-vous"
-                  : isRevealed
-                    ? "Résultat"
-                    : "Où sommes-nous ?"}
-              </h1>
+              <p className="eyebrow">manche en cours</p>
+              <h1>{isRevealed ? "Résultat" : "Où sommes-nous ?"}</h1>
             </div>
             {isGuessing && <span>Placez votre repère</span>}
           </div>
@@ -97,12 +130,6 @@ export default function MultiplayerRoundView({
               disabled={!isGuessing || isRevealed || locked}
             />
           </div>
-
-          {room.state === "getready" && (
-            <p className="multiplayer-round__message">
-              La manche commence dans quelques secondes.
-            </p>
-          )}
 
           {isGuessing && (
             <button
@@ -127,6 +154,19 @@ export default function MultiplayerRoundView({
                 <span>à {formatDistance(result.distanceKm)} du marché</span>
                 <h2>{market.name.split(" — ")[0]}</h2>
               </div>
+              {room.currentRound < room.options.rounds ? (
+                isHost && (
+                  <button
+                    className="button button--primary"
+                    type="button"
+                    onClick={onNextRound}
+                  >
+                    Manche suivante
+                  </button>
+                )
+              ) : (
+                <p className="multiplayer__waiting">Partie terminée.</p>
+              )}
             </div>
           )}
         </aside>

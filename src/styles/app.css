@@ -449,6 +449,36 @@ a:focus-visible {
   margin-left: auto;
 }
 
+.multiplayer__duration {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+.multiplayer__duration-heading {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+
+.multiplayer__duration-heading strong {
+  font-family: var(--font-sanchez), Georgia, serif;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.multiplayer__duration input[type="range"] {
+  accent-color: var(--green);
+  cursor: pointer;
+  width: 100%;
+}
+
+.multiplayer__duration p {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  margin: 0;
+}
+
 .multiplayer__results {
   border-top: 1px solid var(--line);
   margin: 28px 0;
@@ -594,6 +624,17 @@ a:focus-visible {
 .game__header span {
   color: var(--ink-soft);
   font-size: 0.72rem;
+}
+
+.multiplayer-game__timer {
+  color: var(--ink);
+  font-family: var(--font-sanchez), Georgia, serif;
+  font-size: 1.1rem !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.multiplayer-game__timer--urgent {
+  color: var(--orange);
 }
 
 .game__quit {

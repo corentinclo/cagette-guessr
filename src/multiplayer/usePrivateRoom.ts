@@ -5,6 +5,9 @@ import type { DataConnection, Peer } from "peerjs";
 import { markets } from "@/data/markets";
 import { isClientMessage, isServerMessage } from "@/domain/protocol";
 import {
+  DEFAULT_ROUND_DURATION_SECONDS,
+  MAX_ROUND_DURATION_SECONDS,
+  MIN_ROUND_DURATION_SECONDS,
   createRoomCode,
   isValidRoomCode,
   normalizeRoomCode,
@@ -67,7 +70,7 @@ function createRoomState(code: string, host: Player): Room {
     players: [host],
     currentRound: 0,
     rounds: [],
-    options: { rounds: 5, timePerRound: 30 },
+    options: { rounds: 5, timePerRound: DEFAULT_ROUND_DURATION_SECONDS },
     nextEventAt: null,
   };
 }
@@ -108,6 +111,23 @@ function getJoinErrorMessage(errorType: string): string {
     return "Ce navigateur ne prend pas en charge le mode multijoueur.";
   }
   return `Impossible de joindre cette salle (${errorType}).`;
+}
+
+function allConnectedPlayersLocked(room: Room): boolean {
+  const currentRound = room.rounds[room.currentRound - 1];
+  const connectedPlayers = room.players.filter(
+    (player) => player.status === "connected"
+  );
+
+  return (
+    Boolean(currentRound) &&
+    connectedPlayers.length > 0 &&
+    connectedPlayers.every((player) =>
+      currentRound?.guesses.some(
+        (guess) => guess.playerId === player.id && guess.final
+      )
+    )
+  );
 }
 
 export function usePrivateRoom(): UsePrivateRoomResult {
@@ -177,6 +197,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
     const market = markets.find((candidate) => candidate.id === marketId);
     if (!currentRound || !market) return;
 
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+
     const results = room.players.map((player) => {
       const guess = currentRound.guesses.find(
         (item) => item.playerId === player.id
@@ -208,10 +231,7 @@ export function usePrivateRoom(): UsePrivateRoomResult {
     broadcastRoom(nextRoom);
   }, [broadcastRoom, updateRoom]);
 
-  const beginGuess = useCallback((): void => {
-    const room = roomRef.current;
-    if (!room || room.state !== "getready") return;
-
+  const startGuess = useCallback((room: Room): void => {
     const nextRoom: Room = {
       ...room,
       state: "guess",
@@ -232,9 +252,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
 
     const nextRoom: Room = {
       ...room,
-      state: "getready",
+      state: "guess",
       currentRound: room.currentRound + 1,
-      nextEventAt: Date.now() + 5000,
+      nextEventAt: null,
       rounds: [
         ...room.rounds,
         {
@@ -246,10 +266,8 @@ export function usePrivateRoom(): UsePrivateRoomResult {
         },
       ],
     };
-    updateRoom(nextRoom);
-    broadcastRoom(nextRoom);
-    timerRef.current = setTimeout(beginGuess, 5000);
-  }, [beginGuess, broadcastRoom, state.isHost, updateRoom]);
+    startGuess(nextRoom);
+  }, [startGuess, state.isHost]);
 
   const startGame = useCallback((): void => {
     const room = roomRef.current;
@@ -266,15 +284,13 @@ export function usePrivateRoom(): UsePrivateRoomResult {
     };
     const nextRoom: Room = {
       ...room,
-      state: "getready",
+      state: "guess",
       currentRound: 1,
-      nextEventAt: Date.now() + 5000,
+      nextEventAt: null,
       rounds: [firstRound],
     };
-    updateRoom(nextRoom);
-    broadcastRoom(nextRoom);
-    timerRef.current = setTimeout(beginGuess, 5000);
-  }, [beginGuess, broadcastRoom, state.isHost, updateRoom]);
+    startGuess(nextRoom);
+  }, [startGuess, state.isHost]);
 
   const placeGuess = useCallback(
     (coordinates: { lat: number; lng: number }, final: boolean): void => {
@@ -295,9 +311,18 @@ export function usePrivateRoom(): UsePrivateRoomResult {
         return;
       }
 
+      if (room.nextEventAt !== null && Date.now() >= room.nextEventAt) {
+        finishRound();
+        return;
+      }
+
       const currentRound = room.rounds[room.currentRound - 1];
       if (!currentRound) return;
       const playerId = room.hostId;
+      const existingGuess = currentRound.guesses.find(
+        (item) => item.playerId === playerId
+      );
+      if (existingGuess?.final) return;
       const guess = {
         playerId,
         roundNumber: room.currentRound,
@@ -321,8 +346,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
       };
       updateRoom(nextRoom);
       broadcastRoom(nextRoom);
+      if (final && allConnectedPlayersLocked(nextRoom)) finishRound();
     },
-    [broadcastRoom, state.isHost, updateRoom]
+    [broadcastRoom, finishRound, state.isHost, updateRoom]
   );
 
   const createRoom = useCallback(
@@ -375,9 +401,20 @@ export function usePrivateRoom(): UsePrivateRoomResult {
                 ) {
                   return;
                 }
+                if (
+                  currentRoom.nextEventAt !== null &&
+                  Date.now() >= currentRoom.nextEventAt
+                ) {
+                  finishRound();
+                  return;
+                }
                 const currentRound =
                   currentRoom.rounds[currentRoom.currentRound - 1];
                 if (!currentRound) return;
+                const existingGuess = currentRound.guesses.find(
+                  (item) => item.playerId === connection.peer
+                );
+                if (existingGuess?.final) return;
                 const guess = {
                   playerId: connection.peer,
                   roundNumber: value.roundNumber,
@@ -403,6 +440,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
                 };
                 updateRoom(nextRoom);
                 broadcastRoom(nextRoom);
+                if (guess.final && allConnectedPlayersLocked(nextRoom)) {
+                  finishRound();
+                }
                 return;
               }
 
@@ -450,6 +490,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
                   connectionsRef.current.delete(rejoiningPlayer.id);
                   updateRoom(disconnectedRoom);
                   broadcastRoom(disconnectedRoom);
+                  if (allConnectedPlayersLocked(disconnectedRoom)) {
+                    finishRound();
+                  }
                 });
                 return;
               }
@@ -489,6 +532,9 @@ export function usePrivateRoom(): UsePrivateRoomResult {
                 connectionsRef.current.delete(player.id);
                 updateRoom(disconnectedRoom);
                 broadcastRoom(disconnectedRoom);
+                if (allConnectedPlayersLocked(disconnectedRoom)) {
+                  finishRound();
+                }
               });
               send(connection, {
                 type: "game",
@@ -511,7 +557,7 @@ export function usePrivateRoom(): UsePrivateRoomResult {
         error: "Impossible de créer une salle pour le moment.",
       }));
     },
-    [broadcastRoom, leaveRoom, updateRoom]
+    [broadcastRoom, finishRound, leaveRoom, updateRoom]
   );
 
   const joinRoom = useCallback(
@@ -589,6 +635,13 @@ export function usePrivateRoom(): UsePrivateRoomResult {
     (options: RoomOptions): void => {
       const room = roomRef.current;
       if (!room || !state.isHost || room.state !== "waiting") return;
+      if (
+        !Number.isInteger(options.timePerRound) ||
+        options.timePerRound < MIN_ROUND_DURATION_SECONDS ||
+        options.timePerRound > MAX_ROUND_DURATION_SECONDS
+      ) {
+        return;
+      }
       const nextRoom = { ...room, options };
       updateRoom(nextRoom);
       broadcastRoom(nextRoom);

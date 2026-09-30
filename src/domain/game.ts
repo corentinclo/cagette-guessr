@@ -98,6 +98,12 @@ export function formatPoints(points: number): string {
   return new Intl.NumberFormat("fr-FR").format(points);
 }
 
+export function formatRoundDuration(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
 export function shortMarketName(name?: string | null): string {
   return name?.split(" — ")[0] || "Marché Cagette";
 }

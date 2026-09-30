@@ -4,6 +4,10 @@ import type {
   RoomOptions,
   ServerMessage,
 } from "@/domain/types";
+import {
+  MAX_ROUND_DURATION_SECONDS,
+  MIN_ROUND_DURATION_SECONDS,
+} from "@/domain/room";
 
 export const PROTOCOL_VERSION = 1 as const;
 
@@ -29,7 +33,8 @@ function isRoomOptions(value: unknown): value is RoomOptions {
     value.rounds > 0 &&
     typeof value.timePerRound === "number" &&
     Number.isInteger(value.timePerRound) &&
-    value.timePerRound > 0
+    value.timePerRound >= MIN_ROUND_DURATION_SECONDS &&
+    value.timePerRound <= MAX_ROUND_DURATION_SECONDS
   );
 }
 
