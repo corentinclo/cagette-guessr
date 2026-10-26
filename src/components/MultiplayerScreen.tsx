@@ -72,9 +72,13 @@ export default function MultiplayerScreen({ onQuit }: MultiplayerScreenProps) {
 
     setRoomCodeInput(code);
     if (autoJoinStarted.current) return;
+
+    const savedName = localStorage.getItem(PLAYER_NAME_STORAGE_KEY)?.trim();
+    if (!savedName) return;
+
     autoJoinStarted.current = true;
-    void joinRoom(code, playerName);
-  }, [joinRoom, playerName, playerNameLoaded]);
+    void joinRoom(code, savedName);
+  }, [joinRoom, playerNameLoaded]);
 
   function handleCreate(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
