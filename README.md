@@ -58,6 +58,16 @@ Pour reconstruire le JSON après une mise à jour du CSV :
 pnpm convert-csv
 ```
 
+Pour retirer du jeu les marchés situés hors couverture Street View (aucune clé
+Google requise, nécessite Chrome/Chromium installé localement) :
+
+```bash
+pnpm check-streetview
+```
+
+Le script génère `data/streetview-excluded.json`, consommé par l'application
+pour écarter ces marchés.
+
 ## Build et déploiement
 
 ```bash

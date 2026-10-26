@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "convert-csv": "tsx scripts/convertCagetteCsvToJson.ts",
+    "check-streetview": "tsx scripts/checkStreetView.ts",
     "dev": "next dev",
     "build": "next build",
     "typecheck": "tsc --noEmit",
@@ -29,6 +30,7 @@
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "puppeteer-core": "^25.16.0",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }

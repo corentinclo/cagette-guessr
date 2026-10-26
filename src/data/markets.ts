@@ -1,4 +1,5 @@
 import rawMarkets from "../../data/cagette-markets.json";
+import excludedStreetViewIds from "../../data/streetview-excluded.json";
 import { isInMetropolitanFrance } from "@/domain/game";
 import type { Market } from "@/domain/types";
 
@@ -62,10 +63,14 @@ function normalizeMarket(value: unknown): Market | null {
 
 const rawMarketValues: unknown = rawMarkets;
 
+const streetViewExcludedIds = new Set<string>(
+  (excludedStreetViewIds as readonly string[]).map(String)
+);
+
 export const markets: Market[] = Array.isArray(rawMarketValues)
   ? rawMarketValues.flatMap((value) => {
       const market = normalizeMarket(value);
-      return market ? [market] : [];
+      return market && !streetViewExcludedIds.has(market.id) ? [market] : [];
     })
   : [];
 
