@@ -21,7 +21,7 @@ describe("room codes", () => {
   });
 
   it("derives the deterministic PeerJS identifier", () => {
-    assert.equal(roomPeerId("kqzpt"), "cagette-KQZPT");
+    assert.equal(roomPeerId("kqzpt"), "cagette-guessr-KQZPT");
     assert.throws(() => roomPeerId("bad"), /five letters/);
   });
 

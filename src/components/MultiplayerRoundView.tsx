@@ -57,13 +57,13 @@ export default function MultiplayerRoundView({
   const [guess, setGuess] = useState<Coordinates | null>(null);
   const [locked, setLocked] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [showFinalStandings, setShowFinalStandings] = useState(false);
   const finalDialogRef = useRef<HTMLDialogElement | null>(null);
   const round = room.rounds[room.currentRound - 1];
   const result = round?.results.find((item) => item.playerId === myId);
   const isGuessing = room.state === "guess";
   const isRevealed = room.state === "end" && Boolean(round?.revealed);
-  const isFinalRound =
-    isRevealed && room.currentRound >= room.options.rounds;
+  const isFinalRound = isRevealed && room.currentRound >= room.options.rounds;
   const remainingSeconds =
     isGuessing && room.nextEventAt !== null
       ? Math.max(0, Math.ceil((room.nextEventAt - now) / 1000))
@@ -81,11 +81,13 @@ export default function MultiplayerRoundView({
 
   useEffect(() => {
     const dialog = finalDialogRef.current;
-    if (isFinalRound && dialog && !dialog.open) dialog.showModal();
+    if (isFinalRound && showFinalStandings && dialog && !dialog.open) {
+      dialog.showModal();
+    }
     return () => {
       if (dialog?.open) dialog.close();
     };
-  }, [isFinalRound]);
+  }, [isFinalRound, showFinalStandings]);
 
   useEffect(() => {
     if (!isGuessing || room.nextEventAt === null) return;
@@ -195,7 +197,15 @@ export default function MultiplayerRoundView({
                 <span>à {formatDistance(result.distanceKm)} du marché</span>
                 <h2>{market.name.split(" — ")[0]}</h2>
               </div>
-              {room.currentRound < room.options.rounds ? (
+              {isFinalRound ? (
+                <button
+                  className="button button--primary"
+                  type="button"
+                  onClick={() => setShowFinalStandings(true)}
+                >
+                  Voir le classement final
+                </button>
+              ) : (
                 isHost && (
                   <button
                     className="button button--primary"
@@ -205,7 +215,7 @@ export default function MultiplayerRoundView({
                     Manche suivante
                   </button>
                 )
-              ) : null}
+              )}
             </div>
           )}
         </aside>
