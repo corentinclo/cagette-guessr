@@ -7,6 +7,7 @@ CagetteGuessr est un jeu de géographie consacré aux marchés Cagette en France
 - partie solo de cinq marchés tirés au hasard ;
 - prise en main sur trois marchés ;
 - carte de réponse OpenStreetMap ;
+- retour au point de départ de la vue Street View ;
 - bilan détaillé à la fin de la tournée ;
 - fonctionnement sans compte, base de données ou serveur applicatif.
 
